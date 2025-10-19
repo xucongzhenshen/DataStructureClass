@@ -79,7 +79,7 @@ void printColoring(const vector<int> &colors)
     }
     for (int i = 0; i < colors.size(); i++)
     {
-        cout << "Node " << i << ": Color " << colors[i] << endl;
+        cout << "Node " << i << "啊" << colors[i] << endl;
     }
 }
 
