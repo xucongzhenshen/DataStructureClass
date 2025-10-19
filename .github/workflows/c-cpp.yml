@@ -1,4 +1,4 @@
-name: Src-Folder CI
+name: Build-Every-Solution
 
 on:
   push:
@@ -12,9 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # C++ 语言
-      - name: Compile all C++
-        run: g++ -Wall -Wextra -std=c++17 -O2 src/*/*.cpp -o prog
-
-      - name: Run
-        run: ./prog
+      - name: Compile & run each cpp
+        run: |
+          shopt -s globstar      # 开启 ** 递归匹配
+          for f in src/**/*.cpp; do
+            exe="${f%.cpp}"      # 去掉 .cpp 当作文件名
+            echo "======== $f ========"
+            g++ -Wall -Wextra -std=c++17 -O2 "$f" -o "$exe"
+            ./"$exe"
+          done
