@@ -3,6 +3,7 @@ first queue is to contain every other element beginning with the first;
 the second queue contains the remaining elements.The relative order of queue
 elements is unchanged.What is the complexity of your function?
 */
+/*
 void splitQueue(Queue &q1, Queue &q2)
 {
     Queue temp;
@@ -27,6 +28,7 @@ void splitQueue(Queue &q1, Queue &q2)
         enqueue(q1, dequeue(temp));
     }
 }
+    */
 
 /*
 Complexity analysis:
