@@ -15,7 +15,9 @@ jobs:
       - name: Compile & run each cpp
         run: |
           shopt -s globstar      # 开启 ** 递归匹配
-          for f in src/**/*.cpp; do
+          mapfile -t changed < <(git diff --name-only HEAD^..HEAD | grep '\.cpp$')
+          for f in "${changed[@]}"; do
+            [[ -e $f ]] || continue
             exe="${f%.cpp}"      # 去掉 .cpp 当作文件名
             echo "======== $f ========"
             g++ -Wall -Wextra -std=c++17 -O2 "$f" -o "$exe"
