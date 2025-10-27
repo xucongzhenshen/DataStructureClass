@@ -52,7 +52,7 @@ public:
     ~Matrix();                       // destructor
     MatrixNode *getHeadNode() const { return headnode; }
     Matrix operator+(const Matrix &b) const;
-    Matrix operator-(const Matrix &b) const;
+    Matrix operator*(const Matrix &b) const;
     Matrix &operator=(const Matrix &b);
 
 private:
