@@ -1,15 +1,9 @@
 #include "binaryTree.h"
-void BinaryTree::recDestructor(Node* node) {
-    if (node != nullptr) {
-        recDestructor(node->left);
-        recDestructor(node->right);
-        delete node;
-    }
-}
+
 
 // test
 int main() {
-    BinaryTree bt;
+    BinaryTree<int> bt;
     bt.insert(5);
     bt.insert(3);
     bt.insert(7);

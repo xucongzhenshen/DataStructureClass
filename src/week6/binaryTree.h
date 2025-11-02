@@ -13,10 +13,6 @@ public:
         Node* right;
 
         Node(T val) : data(val), left(nullptr), right(nullptr) {};
-        friend ostream& operator<<(ostream &os, const Node &node) {
-            os << node.data << '\t';
-            return os;
-        };
     };
     // iterator declared below
 
@@ -89,47 +85,66 @@ private:
         }
     }
     
-    void recDestructor(Node* node);
+    void recDestructor(Node* node){
+        if (node != nullptr) {
+            recDestructor(node->left);
+            recDestructor(node->right);
+            delete node;
+        }
+    }
 
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const typename BinaryTree<T>::Node& node) {
+    os << node.data << " ";
+    return os;
+}
+
 // Simple forward iterator for BinaryTree::Node
 template <typename NodeT>
 class MyForwardIterator {
-    std::string mode;
-    NodeT* current;
-    // stacks used by iterative algorithms
-    std::vector<NodeT*> st_nodes;                 // for inorder/preorder
-    std::vector<std::pair<NodeT*, bool>> st_flags; // for postorder
+    const std::string mode;
+    NodeT *current;
+    std::stack<std::pair<NodeT *, bool>> stk; // 使用std::stack
 
     // pointer used while traversing inorder
     NodeT* cur_ptr = nullptr;
 
     void advanceInorder() {
-        while (cur_ptr) {
-            st_nodes.push_back(cur_ptr);
-            cur_ptr = cur_ptr->left;
+        while (cur_ptr != nullptr || !stk.empty()) {
+            while (cur_ptr != nullptr) {
+                stk.push({cur_ptr, false});
+                cur_ptr = cur_ptr->left;
+            }
+            auto &p = stk.top();
+            if (!p.second) {
+                p.second = true;
+                current = p.first;
+                cur_ptr = p.first->right;
+                stk.pop();
+                return;
+            }
         }
-        if (st_nodes.empty()) { current = nullptr; return; }
-        current = st_nodes.back(); st_nodes.pop_back();
-        cur_ptr = current->right;
+        current = nullptr;
     }
 
     void advancePreorder() {
-        if (st_nodes.empty()) { current = nullptr; return; }
-        current = st_nodes.back(); st_nodes.pop_back();
-        if (current->right) st_nodes.push_back(current->right);
-        if (current->left) st_nodes.push_back(current->left);
+        if (stk.empty()) { current = nullptr; return; }
+        current = stk.top().first; stk.pop();
+        if (current->right) stk.push(std::make_pair(current->right, false));
+        if (current->left) stk.push(std::make_pair(current->left, false));
     }
 
     void advancePostorder() {
-        while (!st_flags.empty()) {
-            auto &p = st_flags.back();
+        while (!stk.empty()) {
+            auto &p = stk.top();
             if (!p.second) {
                 p.second = true;
-                if (p.first->right) st_flags.push_back({p.first->right, false});
-                if (p.first->left) st_flags.push_back({p.first->left, false});
+                if (p.first->right) stk.push(std::make_pair(p.first->right, false));
+                if (p.first->left) stk.push(std::make_pair(p.first->left, false));
             } else {
-                current = p.first; st_flags.pop_back(); return;
+                current = p.first; stk.pop(); return;
             }
         }
         current = nullptr;
@@ -138,10 +153,18 @@ class MyForwardIterator {
 public:
     MyForwardIterator(NodeT* root, const std::string &m) : mode(m), current(nullptr), cur_ptr(nullptr) {
         if (!root) { current = nullptr; return; }
-        if (mode == "inorder") { cur_ptr = root; advanceInorder(); }
-        else if (mode == "preorder") { st_nodes.clear(); st_nodes.push_back(root); advancePreorder(); }
-        else if (mode == "postorder") { st_flags.clear(); st_flags.push_back({root, false}); advancePostorder(); }
-        else current = nullptr;
+        if (mode == "inorder") {
+            cur_ptr = root;
+            advanceInorder();
+        } else if (mode == "preorder") {
+            stk.push(std::make_pair(root, false));
+            advancePreorder();
+        } else if (mode == "postorder") {
+            stk.push(std::make_pair(root, false));
+            advancePostorder();
+        } else {
+            current = nullptr;
+        }
     }
 
     MyForwardIterator() : mode(""), current(nullptr), cur_ptr(nullptr) {}
