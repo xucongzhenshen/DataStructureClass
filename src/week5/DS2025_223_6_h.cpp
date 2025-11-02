@@ -98,7 +98,7 @@ Matrix Matrix::operator*(const Matrix &b) const
     head[resTriple.row - 1]->next = result.headnode;
     delete[] head;
     delete[] tail;
-    return result;
+    return std::move(result);
 }
 
 int main()

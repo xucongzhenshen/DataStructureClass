@@ -149,7 +149,7 @@ Matrix Matrix::operator+(const Matrix &b) const
     result.headnode->right = head[0];
     delete[] head;
     delete[] tail;
-    return result;
+    return std::move(result);
 }
 
 int main()

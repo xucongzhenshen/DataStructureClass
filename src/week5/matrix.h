@@ -48,12 +48,14 @@ class Matrix
 
 public:
     Matrix() : headnode(nullptr) {}; // constructor
-    Matrix(const Matrix &other);     
+    Matrix(const Matrix &other);
+    Matrix(Matrix &&other) noexcept : headnode(other.headnode) { other.headnode = nullptr; }
     ~Matrix();                       // destructor
     MatrixNode *getHeadNode() const { return headnode; }
     Matrix operator+(const Matrix &b) const;
     Matrix operator*(const Matrix &b) const;
     Matrix &operator=(const Matrix &b);
+    Matrix &operator=(Matrix &&b) noexcept;
 
 private:
     MatrixNode *headnode;
@@ -122,6 +124,35 @@ Matrix::Matrix(const Matrix &other) : headnode(nullptr)
     delete[] tail;
 }
 
+Matrix &Matrix::operator=(Matrix &&b) noexcept
+{
+    if (this != &b)
+    {
+        // 释放当前矩阵的资源
+        if (headnode)
+        {
+            MatrixNode *currentHead = headnode->right;
+            while (currentHead != headnode)
+            {
+                MatrixNode *current = currentHead->right;
+                while (current != currentHead)
+                {
+                    MatrixNode *temp = current;
+                    current = current->right;
+                    delete temp;
+                }
+                MatrixNode *temp = currentHead;
+                currentHead = currentHead->next;
+                delete temp;
+            }
+            delete headnode;
+        }
+        // 转移资源所有权
+        headnode = b.headnode;
+        b.headnode = nullptr;
+    }
+    return *this;
+}
 // 读入稀疏矩阵
 istream &operator>>(istream &is, Matrix &matrix)
 {
