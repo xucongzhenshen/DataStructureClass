@@ -52,7 +52,14 @@ public:
     auto end() {
         return MyForwardIterator<Node>(nullptr, "");
     }
-private:
+
+    int &height()
+    {
+        int height = 0;
+        return measureHeight(height, root);
+    }
+
+    private:
     Node* root;
 
     Node* insertRec(Node* node, T val) {
@@ -92,7 +99,20 @@ private:
             delete node;
         }
     }
-
+    int &measureHeight(int &height, Node *node)
+    {
+        if (node == nullptr)
+        {
+            return height;
+        }
+        height++;
+        int leftHeight = height;
+        int rightHeight = height;
+        measureHeight(leftHeight, node->left);
+        measureHeight(rightHeight, node->right);
+        height = std::max(leftHeight, rightHeight);
+        return height;
+    }
 };
 
 template <typename T>
